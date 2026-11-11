@@ -115,7 +115,6 @@
                   ],
                   "spec": {
                     "accessMode": "ReadWriteOnce",
-                    "storageClassName": "ssd",
                     "storageSize": 10240
                   },
                   "attachedObjects": [
