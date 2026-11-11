@@ -43,7 +43,6 @@
                   "version": "latest",
                   "billing": {
                     "deploymentPlan": "nf-compute-20",
-                    "storageClass": "ssd",
                     "storage": 4096,
                     "replicas": 1
                   },
