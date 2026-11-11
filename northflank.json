@@ -2,7 +2,8 @@
   "$schema": "https://api.northflank.com/v1/schemas/template",
   "apiVersion": "v1.2",
   "arguments": {
-    "KANDEV_VERSION": "v0.100.0"
+    "KANDEV_VERSION": "v0.100.0",
+    "KANDEV_DOMAIN": "kandev.acusset.dev"
   },
   "spec": {
     "kind": "Workflow",
@@ -99,7 +100,8 @@
                       "name": "http",
                       "internalPort": 38429,
                       "public": true,
-                      "protocol": "HTTP"
+                      "protocol": "HTTP",
+                      "domains": ["${args.KANDEV_DOMAIN}"]
                     }
                   ]
                 }
