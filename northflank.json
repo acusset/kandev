@@ -1,6 +1,9 @@
 {
   "$schema": "https://api.northflank.com/v1/schemas/template",
   "apiVersion": "v1.2",
+  "arguments": {
+    "KANDEV_VERSION": "v0.100.0"
+  },
   "spec": {
     "kind": "Workflow",
     "spec": {
@@ -30,15 +33,108 @@
             "context": {
               "projectId": "${refs.project.id}"
             },
-            "steps": []
+            "steps": [
+              {
+                "kind": "Addon",
+                "ref": "db",
+                "spec": {
+                  "name": "kandev-db",
+                  "type": "postgresql",
+                  "version": "latest",
+                  "billing": {
+                    "deploymentPlan": "nf-compute-20",
+                    "storageClass": "ssd",
+                    "storage": 4096,
+                    "replicas": 1
+                  },
+                  "tlsEnabled": false,
+                  "externalAccessEnabled": false
+                }
+              },
+              {
+                "kind": "SecretGroup",
+                "spec": {
+                  "name": "kandev-db-env",
+                  "secretType": "environment-arguments",
+                  "priority": 10,
+                  "secrets": {
+                    "variables": {
+                      "KANDEV_DATABASE_DRIVER": "postgres",
+                      "KANDEV_DATABASE_SSLMODE": "disable"
+                    }
+                  },
+                  "addonDependencies": [
+                    {
+                      "addonId": "${refs.db.id}",
+                      "keys": [
+                        { "keyName": "HOST", "aliases": ["KANDEV_DATABASE_HOST"] },
+                        { "keyName": "PORT", "aliases": ["KANDEV_DATABASE_PORT"] },
+                        { "keyName": "USERNAME", "aliases": ["KANDEV_DATABASE_USER"] },
+                        { "keyName": "PASSWORD", "aliases": ["KANDEV_DATABASE_PASSWORD"] },
+                        { "keyName": "DATABASE", "aliases": ["KANDEV_DATABASE_DBNAME"] }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "kind": "DeploymentService",
+                "ref": "kandev",
+                "spec": {
+                  "name": "kandev",
+                  "billing": {
+                    "deploymentPlan": "nf-compute-50"
+                  },
+                  "deployment": {
+                    "instances": 1,
+                    "external": {
+                      "imagePath": "ghcr.io/kdlbs/kandev:${args.KANDEV_VERSION}"
+                    }
+                  },
+                  "runtimeEnvironment": {
+                    "KANDEV_FEATURES_AUTH": "true"
+                  },
+                  "ports": [
+                    {
+                      "name": "http",
+                      "internalPort": 38429,
+                      "public": true,
+                      "protocol": "HTTP"
+                    }
+                  ]
+                }
+              },
+              {
+                "kind": "Volume",
+                "spec": {
+                  "name": "kandev-data",
+                  "mounts": [
+                    {
+                      "containerMountPath": "/data"
+                    }
+                  ],
+                  "spec": {
+                    "accessMode": "ReadWriteOnce",
+                    "storageClassName": "ssd",
+                    "storageSize": 10240
+                  },
+                  "attachedObjects": [
+                    {
+                      "id": "${refs.kandev.id}",
+                      "type": "service"
+                    }
+                  ]
+                }
+              }
+            ]
           }
         }
       ]
     }
   },
   "options": {
-    "autorun": false,
-    "concurrencyPolicy": "allow"
+    "autorun": true,
+    "concurrencyPolicy": "forbid"
   },
   "gitops": {
     "repoUrl": "https://github.com/acusset/kandev",
