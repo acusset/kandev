@@ -43,6 +43,7 @@
                   "version": "latest",
                   "billing": {
                     "deploymentPlan": "nf-compute-20",
+                    "storageClass": "nvme",
                     "storage": 4096,
                     "replicas": 1
                   },
@@ -114,6 +115,7 @@
                   ],
                   "spec": {
                     "accessMode": "ReadWriteOnce",
+                    "storageClassName": "nvme",
                     "storageSize": 10240
                   },
                   "attachedObjects": [
