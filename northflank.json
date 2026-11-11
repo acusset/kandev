@@ -101,7 +101,8 @@
                       "internalPort": 38429,
                       "public": true,
                       "protocol": "HTTP",
-                      "domains": ["${args.KANDEV_DOMAIN}"]
+                      "domains": ["${args.KANDEV_DOMAIN}"],
+                      "disableNfDomain": true
                     }
                   ]
                 }
